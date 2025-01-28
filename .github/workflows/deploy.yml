@@ -1,0 +1,29 @@
+name: Deploy Car Rental Project
+
+on:
+  push:
+    branches:
+      - main  # Replace 'main' with your branch name if different.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Deploy to Server
+        run: |
+          scp -r ./* ubuntu@34.239.113.100:/var/www/html/carrental
+          ssh ubuntu@34.239.113.100 "sudo systemctl restart apache2"
