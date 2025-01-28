@@ -1,3 +1,5 @@
+name: Deploy Car Rental Project
+
 on:
   push:
     branches:
@@ -26,5 +28,6 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          scp -r ./* ubuntu@34.239.113.100:/var/www/html/carrental
+          scp -i ~/.ssh/id_rsa -r ./* ubuntu@34.239.113.100:/var/www/html/carrental
           ssh -i ~/.ssh/id_rsa ubuntu@34.239.113.100 "sudo systemctl restart apache2"
+      
