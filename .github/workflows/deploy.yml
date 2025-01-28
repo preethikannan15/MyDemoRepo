@@ -10,23 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Set up SSH
       - name: Set Up SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
         run: |
+          # Create .ssh directory
           mkdir -p ~/.ssh
+          
+          # Add the private key
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          
+          # Add the known hosts
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
+      # Test SSH Connection
       - name: Test SSH Connection
         run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@34.239.113.100 "echo SSH Connection Successful"
 
+      # Deploy to Server
       - name: Deploy to Server
         run: |
+          # Copy files to the server
           scp -i ~/.ssh/id_rsa -r ./* ubuntu@34.239.113.100:/var/www/html/carrental
+          
+          # Restart Apache2 on the server
           ssh -i ~/.ssh/id_rsa ubuntu@34.239.113.100 "sudo systemctl restart apache2"
+         
